@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Product Information</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Icons+Outlined">
+<style>
+/* InFlow light tokens. The product UI under test is light only, so every participant sees the same screen. */
+:root{
+  color-scheme: light;
+  --nav-surface:#0b2d6e; --on-primary:#ffffff; --navy-700:#0b2d6e; --navy-800:#22243d; --navy-100:#ebf1fc; --navy-dark:#003687;
+  --primary-tab:#c3defe; --app-background:#ebf1fc; --surface-lowest:#ffffff; --surface-low:#f1f6fe; --surface-variant:#d8e0f4;
+  --outline-variant:#c2c6d8; --outline:#727787; --on-surface:#191b24; --on-surface-variant:#424655;
+  --info:#0057cf; --success:#2c9b4b; --alert-info-bg:#dbe8ff; --alert-success-bg:#dcefe1;
+  --nav-item-hover:rgba(255,255,255,0.08); --row-hover:#f1f6fe; --inverse-surface:#2e3038; --inverse-on-surface:#f0f0f7;
+  --flyout-shadow:0 8px 24px rgba(0,0,0,0.18);
+  --font-sans:"Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--app-background);color:var(--on-surface);font:400 14px/20px var(--font-sans)}
+.mi{font-family:'Material Icons Outlined';font-weight:normal;font-style:normal;font-size:24px;line-height:1;letter-spacing:normal;text-transform:none;display:inline-block;white-space:nowrap;direction:ltr;font-feature-settings:'liga';-webkit-font-smoothing:antialiased}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--info);outline-offset:2px}
+.tbtn:disabled{opacity:.4;cursor:not-allowed !important}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+h1,h2,h3,p{margin:0}
+
+/* shell */
+.app{display:flex;min-height:100vh}
+.rail{width:76px;flex-shrink:0;background:var(--nav-surface);display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:6px;position:relative;z-index:40}
+.ri{display:flex;flex-direction:column;align-items:center;gap:5px;width:72px;padding:6px 0;border:none;background:transparent;border-radius:8px;cursor:pointer;color:var(--on-primary)}
+.ri:hover{background:var(--nav-item-hover)}
+.ri.static{cursor:default}.ri.static:hover{background:transparent}
+.pill{position:relative;width:44px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.pill .mi{font-size:20px;color:var(--on-primary)}
+.pill.on{background:var(--surface-lowest)}.pill.on .mi{color:var(--navy-700)}
+.rl{font-size:11px;line-height:13px;text-align:center}
+.lockb{position:absolute;top:-6px;right:-8px;width:16px;height:16px;border-radius:9999px;background:var(--primary-tab);box-shadow:0 0 0 2px var(--nav-surface);display:flex;align-items:center;justify-content:center}
+.lockb .mi{font-size:11px;color:var(--navy-700)}
+.newb{position:absolute;top:-7px;right:-14px;background:var(--info);color:var(--on-primary);font:700 9px/1 var(--font-sans);letter-spacing:.4px;padding:3px 5px;border-radius:9999px;box-shadow:0 0 0 2px var(--nav-surface)}
+.wrap{position:relative;width:76px;display:flex;justify-content:center}
+.tip{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:4px;z-index:60;background:var(--inverse-surface);color:var(--inverse-on-surface);font:400 12px/17px var(--font-sans);padding:8px 11px;border-radius:4px;width:200px}
+.fly{position:absolute;left:72px;top:-4px;padding-left:8px;z-index:60}
+.flyin{width:264px;background:var(--surface-lowest);border:1px solid var(--outline-variant);border-radius:8px;box-shadow:var(--flyout-shadow);overflow:hidden}
+.flyt{padding:12px 16px;font-size:16px;line-height:24px;font-weight:600;color:var(--navy-700);border-bottom:1px solid var(--outline-variant)}
+.flyl{padding:6px;display:flex;flex-direction:column;gap:2px}
+.mitem{display:flex;align-items:center;gap:10px;width:100%;padding:9px 10px;border:none;background:transparent;border-radius:5px;font:400 14px/20px var(--font-sans);color:var(--navy-700);cursor:pointer;text-align:left}
+.mitem:hover{background:var(--row-hover)}
+.mitem[aria-disabled="true"]{color:var(--on-surface-variant);cursor:default}.mitem[aria-disabled="true"]:hover{background:transparent}
+.mitem .grow{flex:1}
+.mitem{position:relative}
+.mitem[data-tip]:hover::after,.mitem[data-tip]:focus-visible::after{content:attr(data-tip);position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);width:220px;background:var(--inverse-surface);color:var(--inverse-on-surface);font:400 12px/17px var(--font-sans);padding:8px 11px;border-radius:4px;z-index:70;text-align:left;white-space:normal;pointer-events:none}
+.flyin{overflow:visible}
+.flyn{padding:4px 16px 16px;display:flex;flex-direction:column;gap:12px}
+.flyn p{font-size:13px;line-height:18px;color:var(--on-surface-variant)}
+.right{display:flex;justify-content:flex-end}
+
+main{flex:1;min-width:0;display:flex;flex-direction:column}
+.top{height:64px;flex-shrink:0;background:var(--surface-lowest);display:flex;align-items:center;gap:20px;padding:0 24px;border-bottom:1px solid var(--outline-variant)}
+.search{flex:1;max-width:720px;margin:0 auto;display:flex;align-items:center;gap:10px;height:40px;padding:0 14px;background:var(--navy-100);border-radius:6px;color:var(--on-surface-variant)}
+.search .mi{font-size:20px;color:var(--navy-700)}
+.ticons{display:flex;align-items:center;gap:4px}
+.ib{width:40px;height:40px;border:none;background:transparent;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--navy-700)}
+.avatar{width:40px;height:40px;border-radius:9999px;background:var(--navy-700);margin-left:6px;flex-shrink:0}
+.page{padding:24px;display:flex;flex-direction:column;gap:24px}
+
+/* components */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:40px;padding:0 16px;border-radius:5px;border:1px solid transparent;background:var(--navy-700);color:var(--on-primary);font:500 14px/1 var(--font-sans);cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--navy-dark)}
+.btn.sm{height:30px;padding:0 10px;font-size:13px}
+.btn.lg{height:48px;padding:0 22px;font-size:15px}
+.btn.out{background:var(--surface-lowest);color:var(--navy-700);border-color:var(--outline-variant)}
+.btn.out:hover{background:var(--surface-low)}
+.btn.txt{background:transparent;color:var(--navy-700);padding:0 8px}
+.btn.txt:hover{background:var(--surface-low)}
+.btn[disabled]{background:#e0e0e0;color:#6b6b6b;cursor:not-allowed}
+.chip{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:9999px;background:var(--surface-variant);color:var(--on-surface);font-size:12px;font-weight:500;white-space:nowrap}
+.chip.new{background:var(--navy-700);color:var(--on-primary)}
+.alert{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border-radius:5px;background:var(--alert-info-bg);color:var(--on-surface)}
+.alert .mi{font-size:22px;color:var(--info)}
+.alert.ok{background:var(--alert-success-bg)}.alert.ok .mi{color:var(--success)}
+.alert b{display:block;font-weight:600;margin-bottom:2px}
+.track{height:4px;border-radius:9999px;background:var(--navy-100);overflow:hidden}
+.track>div{height:100%;background:var(--navy-700);transition:width .2s}
+.card{background:var(--surface-lowest);border:1px solid var(--outline-variant);border-radius:5px}
+.ch{display:flex;align-items:center;gap:10px;padding:16px 16px 0}
+.ch .mi{font-size:20px;color:var(--on-surface-variant)}
+.ch h2{flex:1;font-size:18px;line-height:26px;font-weight:600;color:var(--navy-700)}
+.muted{color:var(--on-surface-variant)}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;align-items:start}
+.span2{grid-column:span 2}
+.tabs{display:flex;padding:12px 16px 0;border-bottom:1px solid var(--outline-variant)}
+.tabs span{flex:1;text-align:center;padding:8px 0;font-size:14px;color:var(--on-surface-variant)}
+.tabs span.on{font-weight:600;color:var(--navy-700);border-bottom:2px solid var(--navy-700);margin-bottom:-1px}
+.row{border-bottom:1px solid var(--outline-variant)}
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:24px;text-align:center}
+.icirc{width:48px;height:48px;border-radius:9999px;background:var(--navy-100);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.icirc .mi{color:var(--navy-700)}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
+th{padding:12px 16px;font-weight:600;text-align:left;background:var(--surface-low)}
+td{padding:12px 16px;border-top:1px solid var(--outline-variant)}
+.scroll{overflow-x:auto}
+.intro{max-width:980px;margin:0 auto;width:100%;padding:32px 24px 48px;display:flex;flex-direction:column;gap:28px}
+.auto{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.num{width:26px;height:26px;flex-shrink:0;border-radius:9999px;background:var(--navy-700);color:var(--on-primary);font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.num.lt{background:var(--navy-100);color:var(--navy-700)}
+ul.l{margin:0;padding-left:20px;line-height:22px}
+
+/* researcher index */
+.idx{max-width:980px;margin:0 auto;padding:32px 24px 64px;display:flex;flex-direction:column;gap:20px}
+.idx code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;background:var(--navy-100);padding:2px 6px;border-radius:4px}
+.lk{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--outline-variant);flex-wrap:wrap}
+.lk .grow{flex:1 1 260px;min-width:0}
+.lk a{color:var(--navy-700);font-weight:600;text-decoration:none}.lk a:hover{text-decoration:underline}
+.url{font-size:12px;color:var(--on-surface-variant);word-break:break-all}
+@media (max-width:900px){.sg{grid-template-columns:minmax(0,1fr) !important}.grid3{grid-template-columns:minmax(0,1fr)}.span2{grid-column:auto}.ticons .ib{display:none}}
+@media (prefers-reduced-motion:reduce){.track>div{transition:none}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+(function () {
+  'use strict';
+  // Set after first publish so the index shows full links.
+  var BASE_URL = '';
+
+  var V = {
+    a1: { viewer: 'admin', nav: 'A', act: 'off', data: 'none', widget: 'W1', page: 'dash', gs: 'existing' },
+    a2: { viewer: 'admin', nav: 'A', act: 'off', data: 'none', widget: 'W1', page: 'dash', gs: 'guided' },
+    a3: { viewer: 'admin', nav: 'A', act: 'off', data: 'none', widget: 'W1', page: 'dash', gs: 'value' },
+    a1p: { viewer: 'admin', nav: 'A', act: 'off', data: 'none', widget: 'W1', page: 'intro', gs: 'existing' },
+    a2p: { viewer: 'admin', nav: 'A', act: 'off', data: 'none', widget: 'W1', page: 'intro', gs: 'guided' },
+    a3p: { viewer: 'admin', nav: 'A', act: 'off', data: 'none', widget: 'W1', page: 'intro', gs: 'value' },
+    bp: { viewer: 'user', nav: 'B', act: 'off', data: 'none', widget: 'W1', page: 'intro', gs: 'value' },
+    nu2: { viewer: 'user', nav: 'A', act: 'off', data: 'none', widget: 'W1', page: 'dash', gs: 'existing', desc: true },
+    p1: { viewer: 'admin', nav: 'A', act: 'off', data: 'none', widget: 'W1', page: 'intro', gs: 'existing' },
+    p2: { viewer: 'admin', nav: 'A', act: 'off', data: 'none', widget: 'W1', page: 'intro', gs: 'improved' },
+    na: { viewer: 'admin', nav: 'A', act: 'off', data: 'none', widget: 'W1', page: 'dash', gs: 'existing' },
+    nu: { viewer: 'user', nav: 'A', act: 'off', data: 'none', widget: 'W1', page: 'dash', gs: 'existing' },
+    dA: { viewer: 'admin', nav: 'A', act: 'on', data: 'none', widget: 'W1', page: 'dash', gs: 'existing', dashSet: ['W1', 'W2', 'W3'] },
+    dB: { viewer: 'user', nav: 'A', act: 'on', data: 'none', widget: 'W1', page: 'dash', gs: 'value', dashSet: ['W1', 'W2', 'W3'] },
+    ac: { viewer: 'admin', nav: 'A', act: 'off', data: 'none', widget: 'W1', page: 'intro', gs: 'existing', compare: ['existing', 'guided', 'value'] },
+    b1: { viewer: 'user', nav: 'A', act: 'off', data: 'none', widget: 'W1', page: 'dash', gs: 'value' },
+    b2: { viewer: 'user', nav: 'B', act: 'off', data: 'none', widget: 'W1', page: 'dash', gs: 'value' },
+    b3: { viewer: 'user', nav: 'C', act: 'off', data: 'none', widget: 'W1', page: 'dash', gs: 'value' },
+    bc: { viewer: 'user', nav: 'B', act: 'off', data: 'none', widget: 'W1', page: 'intro', gs: 'existing', compare: ['existing', 'value'] },
+    bn: { viewer: 'noperm', nav: 'B', act: 'on', data: 'others', widget: 'W1', page: 'dash', gs: 'existing' }
+  };
+  var FIXED = 'DASHBOARD';
+  var FLOWS = {
+    TEST1: [{ key: 'na', name: 'You’re an administrator', noEnable: true }, { key: 'nu', name: 'You’re a content editor' }, { key: 'dA', order: 'random', name: 'Dashboard' }],
+    ADMIN: [{ key: 'na' }, { key: 'dA', order: 'random' }],
+    USER1: [{ key: 'nu' }, { key: 'dB', order: 'random' }],
+    USER2: [{ key: 'nu2' }, { key: 'dB', order: 'random' }],
+    DASHBOARD: [{ key: 'dA', order: 'random', name: 'Dashboard' }],
+    PAGE1: [{ key: 'p1' }],
+    PAGE2: [{ key: 'p2' }]
+  };
+  var flow = FLOWS[FIXED] || null; var part = 0;
+
+  var root = document.getElementById('root');
+  var S = null; var timer = null; var key = '';
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function mi(n, st) { return '<span class="mi" aria-hidden="true"' + (st ? ' style="' + st + '"' : '') + '>' + n + '</span>'; }
+  function stop() { if (timer) { clearInterval(timer); timer = null; } }
+
+  function load() {
+    stop();
+    key = flow ? flow[part].key : FIXED;
+    var c = V[key];
+    S = c ? Object.assign({}, c, { menu: false, pct: c.act === 'on' ? 100 : 0, planTip: false, promoDismissed: false, createNote: false, rolesNote: false, details: false, bannerDismissed: false, tab: 0 }) : null;
+    if (S && S.dashSet) {
+      var od = (flow && flow[part].order) || [0, 1, 2];
+      if (od === 'random') { od = [0, 1, 2]; for (var r = 2; r > 0; r--) { var j = Math.floor(Math.random() * (r + 1)); var tmp = od[r]; od[r] = od[j]; od[j] = tmp; } }
+      S.dash = od.map(function (i) { return S.dashSet[i]; });
+      S.dlabels = od.map(function (i) { return 'Dashboard ' + (i + 1); });
+      S.widget = S.dash[0];
+    }
+    if (S && S.compare) {
+      var ord = (flow && flow[part].order) || S.compare.map(function (_, i) { return i; });
+      S.letters = ord.map(function (i) { return 'ABC'.charAt(i); });
+      S.compare = ord.map(function (i) { return S.compare[i]; });
+      S.gs = S.compare[0];
+    }
+    document.title = 'Product Information';
+    render();
+    window.scrollTo(0, 0);
+  }
+  function set(p) { var ch = false; for (var k in p) { if (S[k] !== p[k]) { ch = true; break; } } if (!ch) return; Object.assign(S, p); render(); }
+
+  // sample data (prototype only)
+  var OTHERS_SIG = [
+    { name: 'Missing English descriptions: Spring range', owner: 'Anna Berg', count: '128 entities', status: 'New' },
+    { name: 'Products without images: Outdoor', owner: 'Marco Rossi', count: '46 entities', status: 'In Project' }];
+  var OTHERS_PROJ = [{ name: 'Spring range copy', owner: 'Anna Berg', done: 84, total: 128 }];
+
+  function derive() {
+    var locked = S.act !== 'on', admin = S.viewer === 'admin', noPerm = S.viewer === 'noperm';
+    var any = S.data !== 'none';
+    var sig = (any && !noPerm) ? OTHERS_SIG : [];
+    var proj = (any && !noPerm) ? OTHERS_PROJ : [];
+    var showW = false, promo = null;
+    if (!locked) {
+      if (S.widget === 'W1') showW = any;
+      else if (S.widget === 'W2') showW = true;
+      else if (S.widget === 'W3') { showW = any; if (!any) promo = noPerm ? 'noperm' : 'post'; }
+      else if (S.widget === 'W4') showW = false;
+    }
+    if (S.promoDismissed) promo = null;
+    return { locked: locked, admin: admin, noPerm: noPerm, any: any, sig: sig, proj: proj, showW: showW, promo: promo };
+  }
+
+  // ---------- researcher index ----------
+  function renderIndex() {
+    var groups = {}; var order = [];
+    Object.keys(V).forEach(function (k) { var g = V[k].test; if (!groups[g]) { groups[g] = []; order.push(g); } groups[g].push(k); });
+    var base = BASE_URL || '[artifact link]';
+    var h = '<div class="idx"><header style="display:flex;flex-direction:column;gap:6px">' +
+      '<h1 style="font-size:24px;line-height:32px;font-weight:700">Orchestrate Test Links</h1>' +
+      '<p class="muted" style="max-width:720px">For the researcher. Each link opens one variant in its starting state, with no prototype controls. Paste the link for each task into UserTesting.com. Participants never see this page.</p>' +
+      '<p class="muted" style="max-width:720px">Every link is this page’s link followed by a name such as <code>#t1-b-admin</code>. To restart a variant while checking it, reload the page.</p></header>';
+    order.forEach(function (g) {
+      h += '<section class="card"><h2 style="padding:14px 16px;font-size:16px;line-height:24px;font-weight:600">' + esc(g) + '</h2>';
+      groups[g].forEach(function (k) {
+        var full = base + '#' + k;
+        h += '<div class="lk"><div class="grow"><a href="#' + k + '">' + esc(V[k].label) + '</a><div class="url">' + esc(full) + '</div></div>' +
+          (BASE_URL ? '<button class="btn sm out" data-a="copy" data-k="' + k + '">' + mi('content_copy', 'font-size:16px') + 'Copy Link</button>' : '') + '</div>';
+      });
+      h += '</section>';
+    });
+    return h + '</div>';
+  }
+
+  // ---------- shell ----------
+  function rail(d) {
+    var p = S.page, orchOn = p === 'intro' || p === 'signals' || p === 'projects';
+    var direct = S.nav === 'C' && d.locked && d.admin;
+    var badge = '';
+    if (d.locked && S.nav === 'A') badge = '<span class="lockb">' + mi('lock') + '</span>';
+    else if ((d.locked && S.nav !== 'A') || !d.locked) badge = '<span class="newb">NEW</span>';
+    var h = '<nav class="rail" aria-label="Main">' +
+      '<button class="ri" data-a="dash"><span class="pill' + (p === 'dash' ? ' on' : '') + '">' + mi('dashboard') + '</span><span class="rl">Dashboard</span></button>' +
+      '<div class="ri static"><span class="pill">' + mi('file_upload') + '</span><span class="rl">Import</span></div>' +
+      '<div class="wrap" id="orch"><button class="ri" data-a="orch" aria-haspopup="' + (direct ? 'false' : 'menu') + '" aria-expanded="' + (S.menu && !direct) + '"><span class="pill' + (orchOn ? ' on' : '') + '">' + mi('hub') + badge + '</span><span class="rl">Orchestrate</span></button>';
+    if (S.menu && !direct) h += flyout(d);
+    h += '</div>' +
+      '<div class="ri static"><span class="pill">' + mi('edit_note') + '</span><span class="rl">Enrich</span></div>' +
+      '<div class="wrap" id="plan"><button class="ri" data-a="plan" aria-disabled="true"><span class="pill">' + mi('event') + '<span class="lockb">' + mi('lock') + '</span></span><span class="rl">Plan &amp;<br>Release</span></button>' +
+      (S.planTip ? '<div class="tip" role="tooltip">Contact your administrator to get access to this new feature.</div>' : '') + '</div>' +
+      '<button class="ri" data-a="channel"><span class="pill' + (p === 'channel' ? ' on' : '') + '">' + mi('account_tree') + '<span class="newb">NEW</span></span><span class="rl">Channel<br>Mapper</span></button>' +
+      '<div class="ri static" style="margin-top:auto"><span class="pill">' + mi('more_horiz') + '</span><span class="rl">More</span></div></nav>';
+    return h;
+  }
+
+  function flyout(d) {
+    var items = [];
+    function it(label, a, o) { var tip = d.admin ? 'Enable Orchestrate to unlock ' + label + '.' : 'Contact your administrator to get access to ' + label + '.'; items.push('<button class="mitem" role="menuitem"' + (o.lock ? ' aria-disabled="true" data-tip="' + tip + '" aria-label="' + label + ', locked. ' + tip + '"' : ' data-a="' + a + '"') + '><span class="grow" style="display:flex;flex-direction:column"><span>' + label + '</span>' + (o.sub ? '<span class="muted" style="font-size:12px;line-height:16px">' + o.sub + '</span>' : '') + '</span>' + (o.lock ? mi('lock', 'font-size:16px;color:var(--on-surface-variant)') : '') + '</button>'); }
+    var userInfo = d.locked && !d.admin && (S.nav !== 'A' || S.desc);
+    if (d.locked) {
+      if (S.nav === 'B' && d.admin) it('Get Started', 'intro', { isNew: true });
+      it('Signal Center', '', { lock: true, sub: userInfo ? 'Find products that need work' : '' }); it('Projects', '', { lock: true, sub: userInfo ? 'Assign and track the fixes with your team' : '' });
+    } else {
+      it('Signal Center', 'signals', { isNew: true }); it('Projects', 'projects', { isNew: true });
+      if (S.nav !== 'A') it('Get Started', 'intro', {});
+    }
+    var note = '', cta = false;
+    if (userInfo) {
+      note = S.act === 'running' ? 'Your administrator is setting up Orchestrate.' : 'Ask your administrator for access to Signals and Projects.';
+    } else if (d.locked && S.nav === 'A') {
+      if (S.act === 'running') note = d.admin ? 'Orchestrate is being set up.' : 'Your administrator is setting up Orchestrate.';
+      else if (d.admin) { note = 'Enable Orchestrate to get access to Signals and Projects.'; cta = true; }
+      else note = ''; // content editors: the lock icons and hover tooltips carry the message
+    } else if (userInfo) {
+      note = S.act === 'running' ? 'Your administrator is setting up Orchestrate.' : 'Ask your administrator for access to Signals and Projects.';
+    } else if (d.locked && S.nav === 'B') {
+      note = S.act === 'running' ? 'Orchestrate is being set up.' : (d.admin ? 'Unlocks after you enable Orchestrate.' : 'Unlocks after your administrator enables Orchestrate.');
+    }
+    return '<div class="fly"><div class="flyin" role="menu" aria-label="Orchestrate"><div class="flyt">Orchestrate</div><div class="flyl">' + items.join('') + '</div>' +
+      (note ? '<div class="flyn"><p>' + note + '</p>' + (cta ? '<div class="right"><button class="btn sm" data-a="intro">Get Started</button></div>' : '') + '</div>' : '') + '</div></div>';
+  }
+
+  function header() {
+    var ic = [['today', 'Calendar'], ['create_new_folder', 'New folder'], ['business_center', 'Workareas'], ['assignment', 'Tasks'], ['settings', 'Settings']];
+    return '<header class="top"><div class="search" aria-hidden="true">' + mi('search') + '<span>Search…</span></div><div class="ticons">' +
+      ic.map(function (x) { return '<span class="ib" aria-hidden="true" title="' + x[1] + '">' + mi(x[0]) + '</span>'; }).join('') + '<span class="avatar" aria-hidden="true"></span></div></header>';
+  }
+
+  // ---------- pages ----------
+  function dash(d) {
+    var h = '<div class="page">';
+    if (d.promo) {
+      var P = d.promo === 'post'
+        ? { icon: 'sensors', t: 'Start with your first signal', b: 'Save a query that finds a content gap as a signal, and see how many entities need work.', cta: 'Go to Signal Center', a: 'signals' }
+        : { icon: 'sensors', t: 'Signals & Projects is now available', b: 'To create signals, ask your administrator to add the Manage Orchestrate permission to your role.', cta: 'Learn More', a: 'intro' };
+      h += '<section class="card" style="padding:20px 24px;display:flex;gap:20px;align-items:center;flex-wrap:wrap"><span class="icirc">' + mi(P.icon) + '</span>' +
+        '<div style="flex:1 1 320px;display:flex;flex-direction:column;gap:4px"><h2 style="font-size:18px;line-height:26px;font-weight:600;color:var(--navy-700)">' + esc(P.t) + '</h2><p class="muted">' + esc(P.b) + '</p></div>' +
+        '<div style="display:flex;gap:8px"><button class="btn out" data-a="dismiss">Dismiss</button><button class="btn" data-a="' + P.a + '">' + P.cta + '</button></div></section>';
+    }
+    if (d.showW) {
+      h += '<div class="grid3"><section class="card span2" style="min-height:320px;display:flex;flex-direction:column"><div class="ch">' + mi('drag_indicator') + '<h2>Projects</h2>' + (d.proj.length ? '<button class="btn sm txt" data-a="projects">View All</button>' : '') + '</div>';
+      if (d.proj.length) {
+        h += '<div style="padding:8px 16px 16px">' + d.proj.map(function (p) { var pc = Math.round(p.done / p.total * 100); return '<div class="row" style="display:flex;flex-direction:column;gap:6px;padding:12px 0"><div style="display:flex;justify-content:space-between;gap:8px"><span>' + esc(p.name) + '</span><span style="font-weight:600;color:var(--navy-700)">' + pc + '%</span></div><div class="track"><div style="width:' + pc + '%"></div></div><span class="muted" style="font-size:12px;line-height:16px">' + p.done + ' of ' + p.total + ' resolved · Owner: ' + esc(p.owner) + '</span></div>'; }).join('') + '</div>';
+      } else {
+        h += '<div class="empty"><span class="muted" style="font-size:15px">' + (d.noPerm && d.any ? 'No projects you can see yet' : 'No projects') + '</span><span class="muted" style="font-size:13px">Create a project from a signal to improve your catalog.</span><div style="margin-top:10px"><button class="btn out" data-a="signals">View Signal Center</button></div></div>';
+      }
+      h += '</section><section class="card" style="min-height:320px;display:flex;flex-direction:column"><div class="ch">' + mi('drag_indicator') + '<h2>Signal Center</h2>' + (d.sig.length ? '<button class="btn sm txt" data-a="signals">View All</button>' : '') + '</div>';
+      if (d.sig.length) {
+        h += '<div style="padding:8px 16px 16px">' + d.sig.map(function (s) { return '<div class="row" style="display:flex;flex-direction:column;gap:4px;padding:10px 0"><span>' + esc(s.name) + '</span><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span class="muted" style="font-size:12px">' + esc(s.count) + '</span><span class="chip">' + esc(s.status) + '</span></div></div>'; }).join('') + '</div>';
+      } else {
+        h += '<div class="empty muted" style="font-size:15px">' + (d.noPerm && d.any ? 'No signals you can see yet' : 'No signals') + '</div>';
+      }
+      h += '</section></div>';
+    }
+    var ch = ['eCommerce', 'Content Store', 'Digital Asset Store', 'Outbound to Azure', 'SalesforceB2B'];
+    h += '<div class="grid3">' +
+      '<section class="card" style="min-height:420px;display:flex;flex-direction:column"><div class="ch">' + mi('drag_indicator') + '<h2>Entities</h2></div><div class="tabs"><span class="on">Starred</span><span>Updated</span></div><div class="empty muted">No results</div></section>' +
+      '<section class="card" style="min-height:420px;padding:16px"><div class="ch" style="padding:0">' + mi('drag_indicator') + '<h2>Number of entities</h2></div><div style="font-size:46px;font-weight:700;color:var(--navy-700);line-height:1.1;margin-top:16px">863</div><div class="muted" style="margin-top:18px">Entities added</div><div style="font-size:28px;font-weight:700;color:var(--navy-700);margin-top:2px;line-height:1.2">12</div><div class="muted" style="margin-top:18px">Entities per entity type</div><div style="display:flex;flex-direction:column;align-items:center;margin-top:18px"><span class="muted" style="font-size:13px">Item</span><div style="display:flex;align-items:center;gap:18px;margin-top:4px;color:var(--navy-700)">' + mi('chevron_left') + '<span style="font-size:30px;font-weight:700">81</span>' + mi('chevron_right') + '</div></div></section>' +
+      '<section class="card" style="min-height:420px;display:flex;flex-direction:column"><div class="ch">' + mi('drag_indicator') + '<h2>Channels</h2></div><div class="tabs"><span class="on">Published</span><span>Unpublished</span></div><div style="padding:8px 16px">' +
+      ch.map(function (c) { return '<div class="row" style="padding:10px 0"><div style="display:flex;justify-content:space-between"><span>' + c + '</span><span style="font-weight:600;color:var(--navy-700)">100%</span></div><div class="track" style="margin-top:7px"><div style="width:100%"></div></div></div>'; }).join('') +
+      '</div></section></div></div>';
+    return h;
+  }
+
+  var CATS = (function () { var defs = [['Category', 'folder_open', 1], ['CVL', 'list_alt', 5], ['EntityType', 'category', 2], ['CVLValue', 'sell', 22], ['FieldType', 'text_fields', 7], ['LinkType', 'link', 3]]; var acc = 0; return defs.map(function (x) { var c = { name: x[0], icon: x[1], count: x[2], start: acc, end: acc + x[2] }; acc += x[2]; return c; }); })();
+  var MIG_TOTAL = 40;
+  var B_ = 'border:1px solid var(--outline-variant);border-radius:6px;';
+  var H3 = 'font-size:14px;line-height:20px;font-weight:600;color:var(--navy-700)';
+
+  function intro(d) {
+    var a = d.admin, act = S.act, gs = S.gs || 'existing', h = '';
+    var title = gs === 'existing' ? 'Orchestration Readiness' : 'Get Started with Signals &amp; Projects';
+    h += '<div style="flex:1;display:flex;flex-direction:column"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-height:76px;padding:10px 20px;background:var(--navy-100)">' +
+      '<span class="icirc" style="width:44px;height:44px;background:var(--navy-700)">' + mi('hub', 'color:#fff') + '</span>' +
+      '<div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:2px"><nav aria-label="Breadcrumb"><button data-a="dash" style="background:none;border:none;padding:0;font:400 14px/20px var(--font-sans);color:var(--navy-700);cursor:pointer;text-decoration:underline">Dashboard</button></nav>' +
+      '<h1 style="font-size:22px;line-height:28px;font-weight:700;color:var(--navy-700)">' + title + '</h1></div>';
+    if (a && act === 'off') h += '<button class="btn" data-a="enable">Enable Orchestrate</button>';
+    if (a && act === 'running') h += '<button class="btn" disabled>Enabling…</button>';
+    h += '</div><div style="flex:1;padding:18px 20px 32px;background:var(--surface-lowest);display:flex;flex-direction:column;gap:16px">';
+
+    if ((gs === 'existing' || gs === 'improved') && a && act === 'on') h += alert('ok', 'Orchestrate is enabled.', 'Signals and Projects are now available in your environment.');
+    if (gs !== 'existing' && gs !== 'improved' && a && act === 'on') {
+      h += alert('ok', 'Orchestrate is enabled.', 'One step left before your team can start: give people access.') +
+        '<section style="' + B_ + 'padding:16px 20px;display:flex;flex-direction:column;gap:12px"><h2 style="font-size:16px;line-height:24px;font-weight:600;color:var(--navy-700)">Next: Give People Access</h2>' +
+        '<p class="muted">Add the <b style="font-weight:600;color:var(--on-surface)">Manage Orchestrate</b> permission to the roles that should create signals and projects. People without it can open the pages but can’t create anything.</p>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-a="roles">Open Roles</button><button class="btn out" data-a="signals">Go to Signal Center</button></div>' +
+        (S.rolesNote ? '<span class="muted" style="font-size:13px;line-height:18px">Roles are managed in Control Center. That’s outside this prototype, so this step is done.</span>' : '') + '</section>';
+    }
+    if (!a && act === 'running') h += alert('info', 'Your administrator is setting up Orchestrate.', 'You’ll get access as soon as setup is finished.');
+    if (S.viewer === 'user' && act === 'on') h += '<div style="background:var(--surface-low);' + B_ + 'padding:16px 20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap"><div style="flex:1 1 320px"><h2 style="font-size:16px;line-height:24px;font-weight:600;color:var(--navy-700)">Orchestrate is ready to use</h2><p class="muted">Start by saving a query as a signal in Signal Center.</p></div><button class="btn" data-a="signals">Go to Signal Center</button></div>';
+    if (d.noPerm && act === 'on') h += alert('info', 'Orchestrate is enabled, but you can’t create signals yet.', 'Ask your administrator to add the Manage Orchestrate permission to your role.');
+
+    var vlike = gs === 'value';
+    if (gs === 'improved') {
+      if (a) h += stepper();
+      h += education();
+    } else if (vlike && a && act === 'off') {
+      var gets = [['sensors', 'See what needs work', 'Saved searches show how many products are missing content, and keep the count up to date.'], ['assignment_ind', 'Clear ownership', 'Each fix gets an owner and the people who do the work. They see it in Enrich and by email.'], ['insights', 'Progress you can report', 'Follow resolved products against the total for every project.']];
+      var defs = [['Signal', 'A saved search that finds products needing attention.', 'Example: 128 products are missing English descriptions.'], ['Project', 'The work to fix them, with an owner and the people who do it.', 'Example: Anna’s team adds the missing descriptions this week.']];
+      var takes = [['Enable Orchestrate', 'Adds signals and projects to your data model. Runs in the background.'], ['Give people access', 'Add the Manage Orchestrate permission to the roles that should create signals and projects.'], ['Create your first signal', 'Save a query that finds a content gap as a signal in Signal Center.']];
+      h += '<div class="auto" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;align-items:start"><div style="display:flex;flex-direction:column;gap:20px;min-width:0">' +
+        '<div style="display:flex;flex-direction:column;gap:6px"><h2 style="font-size:20px;line-height:28px;font-weight:700;color:var(--navy-700)">Give your team one place to find and fix content gaps</h2><p class="muted" style="font-size:15px;line-height:22px">Instead of tracking content fixes in spreadsheets and email, your team finds the products that need work, assigns it and follows it to done, right here.</p></div>' +
+        '<section style="display:flex;flex-direction:column;gap:12px"><h3 style="' + H3 + '">What your team gets</h3>' + gets.map(function (g) { return '<div style="display:flex;gap:12px;align-items:flex-start"><span class="icirc" style="width:36px;height:36px">' + mi(g[0], 'font-size:20px') + '</span><div style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:600">' + g[1] + '</span><span class="muted" style="font-size:13px;line-height:19px">' + g[2] + '</span></div></div>'; }).join('') + '</section>' +
+        '<section style="display:flex;flex-direction:column;gap:10px"><h3 style="' + H3 + '">What are signals and projects?</h3><div class="auto" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">' + defs.map(function (x) { return '<div style="' + B_ + 'padding:12px 14px;display:flex;flex-direction:column;gap:4px"><span style="font-weight:600;color:var(--navy-700)">' + x[0] + '</span><span style="font-size:13px;line-height:19px">' + x[1] + '</span><span class="muted" style="font-size:12px;line-height:17px">' + x[2] + '</span></div>'; }).join('') + '</div></section></div>' +
+        '<aside style="background:var(--surface-low);' + B_ + 'padding:18px 20px;display:flex;flex-direction:column;gap:14px"><h3 style="font-size:16px;line-height:24px;font-weight:600;color:var(--navy-700)">What It Takes</h3>' +
+        takes.map(function (x, i) { return '<div style="display:flex;gap:10px;align-items:flex-start"><span class="num" style="width:24px;height:24px;font-size:12px">' + (i + 1) + '</span><div style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:600">' + x[0] + '</span><span class="muted" style="font-size:13px;line-height:18px">' + x[1] + '</span></div></div>'; }).join('') +
+        '<div style="border-top:1px solid var(--outline-variant);padding-top:12px;display:flex;flex-direction:column;gap:6px"><span style="font-weight:600">What changes in your setup</span><span class="muted" style="font-size:13px;line-height:19px">' + MIG_TOTAL + ' objects for signals and projects are added to your data model. Nothing existing is changed or deleted.</span><div><button class="btn sm txt" data-a="details" aria-expanded="' + !!S.details + '">' + (S.details ? 'Hide Setup Details' : 'View Setup Details') + '</button></div></div></aside></div>';
+    } else if (vlike && a) {
+      // admin after enabling: progress and next steps only
+    } else if (gs === 'value') {
+      h += '<div style="display:flex;flex-direction:column;gap:8px;max-width:760px"><h2 style="font-size:24px;line-height:32px;font-weight:700;color:var(--navy-700)">Turn content gaps into work your team finishes</h2><p class="muted" style="font-size:16px;line-height:24px">Signals find the products that need attention. Projects give that work an owner and track it to done, in the same place you manage your product information.</p></div>';
+      if (a && act === 'off') h += '<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button class="btn lg" data-a="enable">Enable Orchestrate</button><span class="muted" style="font-size:13px">Nothing in your current setup is changed or deleted.</span></div>';
+      if (!a && act === 'off') h += alert('info', 'Your administrator can turn this on.', 'Ask your administrator to enable Orchestrate. It takes a few clicks and doesn’t change anything you already have.');
+      var values = [['sensors', 'Spot Content Gaps', 'Save any query as a signal and see how many entities need work, such as missing descriptions or images.'], ['assignment_ind', 'Turn Gaps Into Owned Work', 'Create a project from a signal, give it an owner and assign the entities to the people who fix them. They get the work in Enrich and by email.'], ['insights', 'Follow It to Done', 'See resolved entities out of the total for every project, in one place.']];
+      h += '<div class="auto">' + values.map(function (v) { return '<article style="' + B_ + 'padding:16px;display:flex;flex-direction:column;gap:8px"><span class="icirc" style="width:40px;height:40px">' + mi(v[0], 'font-size:22px') + '</span><h3 style="font-size:16px;line-height:24px;font-weight:600;color:var(--navy-700)">' + v[1] + '</h3><p class="muted">' + v[2] + '</p></article>'; }).join('') + '</div>';
+      h += '<section style="display:flex;flex-direction:column;gap:12px"><h2 style="font-size:16px;line-height:24px;font-weight:600;color:var(--navy-700)">What Are Signals and Projects?</h2><div class="auto">' +
+        [['sensors', 'Signal', 'A saved search that finds products needing attention.', 'Example: 128 products are missing English descriptions.'], ['assignment', 'Project', 'The work to fix them, with an owner and the people who do it.', 'Example: Anna’s team adds the missing descriptions this week.']].map(function (x) { return '<article style="background:var(--surface-low);' + B_ + 'padding:16px;display:flex;gap:12px;align-items:flex-start"><span class="icirc" style="width:40px;height:40px">' + mi(x[0], 'font-size:22px') + '</span><div style="display:flex;flex-direction:column;gap:4px"><h3 style="font-size:16px;line-height:24px;font-weight:600;color:var(--navy-700)">' + x[1] + '</h3><p>' + x[2] + '</p><p class="muted" style="font-size:13px;line-height:18px">' + x[3] + '</p></div></article>'; }).join('') + '</div></section>';
+      var how = [['Find a gap with a query', 'Administrator or manager'], ['Save it as a signal', 'Administrator or manager'], ['Create a project and assign it', 'Project owner'], ['Fix entities in Enrich and track progress', 'Content team']];
+      h += '<section style="display:flex;flex-direction:column;gap:12px"><h2 style="font-size:16px;line-height:24px;font-weight:600;color:var(--navy-700)">How It Works in Your Team</h2><div class="auto" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">' +
+        how.map(function (x, i) { return '<div style="display:flex;gap:10px;align-items:flex-start;background:var(--surface-low);border-radius:6px;padding:12px"><span class="num">' + (i + 1) + '</span><div style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:600">' + x[0] + '</span><span class="muted" style="font-size:13px;line-height:18px">' + x[1] + '</span></div></div>'; }).join('') + '</div></section>';
+      if (a && act === 'off') h += '<section style="' + B_ + 'padding:16px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div style="flex:1 1 320px;display:flex;flex-direction:column;gap:4px"><h2 style="font-size:16px;line-height:24px;font-weight:600;color:var(--navy-700)">Before You Enable</h2><p class="muted">Enabling adds ' + MIG_TOTAL + ' objects for signals and projects to your data model. Nothing existing is changed or deleted. Afterwards, you give people access with the Manage Orchestrate permission.</p></div><button class="btn txt" data-a="details" aria-expanded="' + !!S.details + '">' + (S.details ? 'Hide Setup Details' : 'View Setup Details') + '</button></section>';
+    } else {
+      h += '<div style="display:flex;flex-direction:column;gap:4px"><span class="muted" style="font-size:12px;font-weight:600;letter-spacing:.4px">WHAT IS ORCHESTRATE</span><h2 style="font-size:19px;line-height:26px;font-weight:600;color:var(--navy-700)">Coordinate the work behind your product data</h2><p class="muted">Orchestrate helps teams identify opportunities, coordinate work, and deliver better product outcomes.</p></div>';
+    }
+    if (gs === 'guided' && act === 'off') {
+      var gsteps = [['Enable Orchestrate', 'Adds signals and projects to your data model. Runs in the background.'], ['Give people access', 'Add the Manage Orchestrate permission to the roles that should create signals and projects.'], ['Create your first signal', 'Save a query that finds a content gap as a signal in Signal Center.']];
+      h += '<div class="auto" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))"><section style="background:var(--surface-low);' + B_ + 'padding:16px 20px;display:flex;flex-direction:column;gap:8px"><h3 style="' + H3 + '">Why enabling changes your data model</h3>' +
+        '<p class="muted" style="font-size:13px;line-height:19px">Signals and projects are stored as entities in your own data model, like your products. That lets you extend them later with your own fields, expressions and extensions.</p>' +
+        '<div style="display:flex;gap:8px;font-size:13px;line-height:19px">' + mi('check_circle', 'font-size:18px;color:var(--success)') + '<span>Nothing existing is changed or deleted. Your entities, fields and jobs keep working.</span></div>' +
+        '<div style="display:flex;gap:8px;font-size:13px;line-height:19px">' + mi('info', 'font-size:18px;color:var(--navy-700)') + '<span>If another tool keeps its own copy of your data model (for example an Excel macro), update it after enabling.</span></div></section>' +
+        '<section style="background:var(--surface-low);' + B_ + 'padding:16px 20px;display:flex;flex-direction:column;gap:10px"><h3 style="' + H3 + '">Getting your team started</h3>' +
+        gsteps.map(function (g, i) { return '<div style="display:flex;gap:10px;align-items:flex-start"><span class="num" style="width:22px;height:22px;font-size:12px">' + (i + 1) + '</span><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;line-height:18px;font-weight:600">' + g[0] + '</span><span class="muted" style="font-size:12px;line-height:17px">' + g[1] + '</span></div></div>'; }).join('') + '</section></div>';
+    }
+    if (act === 'off' && (!vlike || S.details)) {
+      var instr = [['Run the migration', 'Select Enable Orchestrate to start the model change. Steps run in a fixed order with check-before-create.'], ['Watch the steps', 'Each object type is created and verified in turn. Progress and an audit log update live as it runs.'], ['If a step fails', 'Run the migration again. Completed objects are detected and skipped, so it safely resumes.'], ['Still struggling?', 'Download the audit report and send it to support so we can investigate.']];
+      h += '<div class="auto" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:0;background:var(--surface-lowest);' + B_ + 'overflow:hidden"><section style="padding:18px 20px;border-right:1px solid var(--outline-variant);display:flex;flex-direction:column;gap:8px"><div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px"><h3 style="' + H3 + '">What gets created</h3><span class="muted" style="font-size:12px">' + MIG_TOTAL + ' objects</span></div><div>' +
+        CATS.map(function (c) { return '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--outline-variant)">' + mi(c.icon, 'font-size:18px;color:var(--navy-700)') + '<span class="muted" style="flex:1;font-size:13px">' + c.name + '</span><span style="font-size:13px;font-weight:600;color:var(--navy-700)">' + c.count + '</span></div>'; }).join('') +
+        '</div><p class="muted" style="font-size:12px;line-height:17px"><b style="font-weight:600;color:var(--navy-700)">Check-before-create:</b> each object is looked up first; objects that already exist are marked Existing, missing ones are created. Nothing is deleted.</p></section>' +
+        '<section style="padding:18px 20px;display:flex;flex-direction:column;gap:12px"><h3 style="' + H3 + '">How it works</h3>' +
+        instr.map(function (x, i) { return '<div style="display:flex;gap:10px;align-items:flex-start"><span class="num lt" style="width:22px;height:22px;font-size:12px">' + (i + 1) + '</span><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;line-height:18px;font-weight:600;color:var(--navy-700)">' + x[0] + '</span><span class="muted" style="font-size:12px;line-height:17px">' + x[1] + '</span></div></div>'; }).join('') + '</section></div>' +
+        '<div style="display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--surface-low);' + B_ + '">' + mi('settings_suggest', 'font-size:19px;color:var(--navy-700);flex-shrink:0') + '<span class="muted" style="font-size:13px;line-height:18px">When every step passes, your environment is set to <b style="font-weight:600;color:var(--navy-700)">Ready to deploy</b> and the signal calculation service restarts automatically. If you plan to use Orchestrate entity types in your extensions, restart the Connect Service when it suits you.</span></div>';
+    }
+    if (!a && act === 'off' && gs !== 'value') h += '<div style="display:flex;align-items:center;gap:10px;background:var(--surface-low);' + B_ + 'padding:10px 14px">' + mi('lock', 'font-size:20px;color:var(--on-surface-variant)') + '<span class="muted" style="font-size:13px;line-height:18px">Only administrators can run the model migration. Ask your administrator to enable Orchestrate.</span></div>';
+    if (a && act !== 'off') {
+      var done = Math.round(S.pct / 100 * MIG_TOTAL);
+      h += '<section style="' + B_ + 'padding:14px 18px 18px;display:flex;flex-direction:column;gap:10px"><div><h3 style="font-size:15px;line-height:22px;font-weight:600;color:var(--navy-700)">Model migration</h3><span class="muted" style="font-size:13px" aria-live="polite">' + (act === 'on' ? 'Complete · ' + MIG_TOTAL + ' objects created' : 'In progress · ' + S.pct + '%') + '</span></div>' +
+        '<div class="track" style="height:6px" role="progressbar" aria-label="Model migration progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + S.pct + '"><div style="width:' + S.pct + '%"></div></div><span class="muted" style="font-size:12px">Completed ' + done + ' / ' + MIG_TOTAL + '</span><div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">' +
+        CATS.map(function (c) { var st = done >= c.end ? 'Created' : (done > c.start ? 'Running' : 'Pending'); var bg = st === 'Created' ? 'var(--alert-success-bg)' : st === 'Running' ? 'var(--navy-100)' : 'var(--surface-variant)'; return '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;' + B_ + '"><span style="flex:1;font-size:13px;font-weight:600;color:var(--navy-700)">' + c.name + ' <span class="muted" style="font-weight:400">· ' + c.count + '</span></span><span style="padding:4px 10px;border-radius:9999px;font:600 11px/1.4 var(--font-sans);background:' + bg + ';color:' + (st === 'Running' ? 'var(--navy-700)' : 'var(--on-surface)') + '">' + st + '</span></div>'; }).join('') + '</div></section>';
+    }
+    return h + '</div></div>';
+  }
+
+  // Mirrors the InFlow ThemedStepper: alternative labels, 24px numbered icons, 2px connector,
+  // completed and active steps solid navy-700, inactive icons in outline, active label underlined.
+  function stepper() {
+    var on = S.act === 'on', active = on ? 1 : 0;
+    var labels = ['Enable Orchestrate', 'Give Access', 'First Signal'];
+    var desc = S.act === 'running' ? 'Step 1: setting up… ' + S.pct + '%. You can leave this page while it runs.'
+      : (on ? 'Step 2: add the Manage Orchestrate permission to the roles that should use it, in Control Center › Roles.'
+        : 'Step 1: enable Orchestrate on this page. Then give people access and create your first signal.');
+    var n = labels.length, h = '<section aria-label="Setup steps" style="display:flex;flex-direction:column;gap:12px;max-width:720px"><ol style="margin:0;padding:0;list-style:none;display:flex;justify-content:space-between;position:relative">';
+    var pctLine = active / (n - 1) * 100;
+    h += '<span aria-hidden="true" style="position:absolute;top:11px;left:calc(100% / ' + (n * 2) + ');right:calc(100% / ' + (n * 2) + ');height:2px;background:var(--outline-variant);border-radius:1px"></span>' +
+      '<span aria-hidden="true" style="position:absolute;top:11px;left:calc(100% / ' + (n * 2) + ');width:calc((100% - 100% / ' + n + ') * ' + (pctLine / 100) + ');height:2px;background:var(--navy-700);border-radius:1px"></span>';
+    labels.forEach(function (l, i) {
+      var done = i < active, cur = i === active;
+      h += '<li' + (cur ? ' aria-current="step"' : '') + ' style="flex:1 1 0;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;z-index:1;text-align:center">' +
+        '<span style="width:24px;height:24px;border-radius:9999px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;background:' + (done || cur ? 'var(--navy-700)' : 'var(--outline)') + '">' + (i + 1) + '</span>' +
+        '<span style="font-size:14px;line-height:20px;padding-bottom:2px;' + (cur ? 'font-weight:600;color:var(--on-surface);border-bottom:2px solid var(--navy-700)' : (done ? 'font-weight:500;color:var(--navy-700);border-bottom:2px solid transparent' : 'color:var(--on-surface-variant);border-bottom:2px solid transparent')) + '">' + l + (done ? '<span class="sr-only"> (done)</span>' : '') + '</span></li>';
+    });
+    return h + '</ol><p class="muted" aria-live="polite" style="font-size:13px;line-height:18px">' + desc + '</p></section>';
+  }
+
+  function education() {
+    var TILE = 'background:var(--surface-low);border-radius:5px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start';
+    var tiles = [
+      ['sensors', 'Signals', 'Saved searches that find products needing attention, and keep the count up to date.', 'Example: 128 products are missing English descriptions.'],
+      ['assignment', 'Projects', 'The work to fix them, with an owner and the people who do it. They get the work in Enrich and by email.', 'Example: Anna’s team adds the missing descriptions this week.'],
+      ['account_tree', 'Why your data model changes', 'Signals and projects are stored as entities in your own data model, so you can extend them later with your own fields, expressions and extensions.', 'Nothing existing is changed or deleted. If another tool keeps a copy of your data model, update it after enabling.']];
+    return '<section style="display:flex;flex-direction:column;gap:12px"><div style="display:flex;flex-direction:column;gap:4px"><h2 style="font-size:19px;line-height:26px;font-weight:600;color:var(--navy-700)">What Is Orchestrate?</h2>' +
+      '<p class="muted" style="max-width:820px">Orchestrate helps your team find the products that need work and track the fixes to done, without leaving the system. It adds two things:</p></div>' +
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px">' +
+      tiles.map(function (x) { return '<div style="' + TILE + '">' + mi(x[0], 'font-size:22px;color:var(--navy-700);margin-top:1px') + '<div style="display:flex;flex-direction:column;gap:4px"><span style="font-weight:600">' + x[1] + '</span><span style="font-size:13px;line-height:19px">' + x[2] + '</span><span class="muted" style="font-size:12px;line-height:17px">' + x[3] + '</span></div></div>'; }).join('') +
+      '</div></section>';
+  }
+
+  function setupGuide() {
+    var act = S.act, s1 = act === 'on', s2 = s1 && S.rolesNote, s3 = false;
+    var done = (s1 ? 1 : 0) + (s2 ? 1 : 0);
+    var cur = !s1 ? 1 : (!s2 ? 2 : 3);
+    var CARD = 'background:var(--surface-lowest);border:1px solid var(--outline-variant);border-radius:5px';
+    function step(n, title, isDone, body) {
+      var active = cur === n && !isDone;
+      var circ = isDone ? '<span style="width:28px;height:28px;flex-shrink:0;border-radius:9999px;background:var(--success);display:flex;align-items:center;justify-content:center">' + mi('check', 'font-size:18px;color:#fff') + '</span>'
+        : '<span style="width:28px;height:28px;flex-shrink:0;border-radius:9999px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;' + (active ? 'background:var(--navy-700);color:#fff' : 'border:2px solid var(--outline-variant);color:var(--on-surface-variant)') + '">' + n + '</span>';
+      var head = '<div style="display:flex;gap:14px;align-items:center">' + circ + '<span style="flex:1;font-size:15px;line-height:22px;font-weight:600;color:' + (active || isDone ? 'var(--on-surface)' : 'var(--on-surface-variant)') + '">' + title + '</span>' +
+        (isDone ? '<span style="font-size:13px;color:var(--success);font-weight:600">Done</span>' : (!active ? '<span class="muted" style="font-size:12px">' + (n === 2 ? 'After step 1' : 'After step 2') + '</span>' : '')) + '</div>';
+      return '<li style="list-style:none;padding:16px 20px;border-top:1px solid var(--outline-variant);' + (active ? 'background:var(--surface-low)' : '') + '">' + head + (active ? '<div style="margin:10px 0 0 42px;display:flex;flex-direction:column;gap:12px">' + body + '</div>' : '') + '</li>';
+    }
+    var tags = CATS.map(function (c) { return '<span class="chip" style="background:var(--surface-lowest);border:1px solid var(--outline-variant)">' + c.count + ' ' + ({ Category: c.count > 1 ? 'categories' : 'category', CVL: 'CVLs', EntityType: 'entity types', CVLValue: 'CVL values', FieldType: 'field types', LinkType: 'link types' })[c.name] + '</span>'; }).join('');
+    var body1 = act === 'running'
+      ? '<span class="muted" aria-live="polite">Setting up… ' + S.pct + '%. You can leave this page while it runs.</span><div class="track" style="height:6px" role="progressbar" aria-label="Setup progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + S.pct + '"><div style="width:' + S.pct + '%"></div></div><div><button class="btn" disabled>Enabling…</button></div>'
+      : '<p>Adds signals and projects to your data model, so you can extend them later with your own fields. <b style="font-weight:600">Nothing existing is changed or deleted</b>, and your jobs keep working.</p>' +
+        '<div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600">What gets created: ' + MIG_TOTAL + ' objects</span><div style="display:flex;gap:6px;flex-wrap:wrap">' + tags + '</div></div>' +
+        '<div style="display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:18px">' + mi('info', 'font-size:18px;color:var(--info)') + '<span>If another tool keeps its own copy of your data model, like an Excel macro, update it after enabling.</span></div>' +
+        '<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><button class="btn" data-a="enable">Enable Orchestrate</button><span class="muted" style="font-size:13px">Takes a few minutes and runs in the background.</span></div>';
+    var body2 = '<p>Add the <b style="font-weight:600">Manage Orchestrate</b> permission to the roles that should create signals and projects. People without it can see the pages but can’t create anything.</p><div><button class="btn" data-a="roles">Open Roles</button></div>';
+    var body3 = '<p>Save a query that finds products needing work, like missing descriptions, as your first signal.</p><div><button class="btn" data-a="signals">Go to Signal Center</button></div>' +
+      (S.rolesNote ? '<span class="muted" style="font-size:12px">Roles are managed in Control Center, which is outside this prototype, so step 2 is marked done.</span>' : '');
+    var guide = '<section style="' + CARD + ';overflow:hidden"><div style="padding:16px 20px;display:flex;flex-direction:column;gap:10px"><div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px"><h2 style="font-size:16px;line-height:24px;font-weight:600">Set Up Orchestrate</h2><span class="muted" style="font-size:13px">' + done + ' of 3 done</span></div>' +
+      '<div class="track" aria-hidden="true"><div style="width:' + Math.round(done / 3 * 100) + '%;background:var(--success)"></div></div></div>' +
+      '<ol style="margin:0;padding:0">' + step(1, 'Enable Orchestrate', s1, body1) + step(2, 'Give people access', s2, body2) + step(3, 'Create your first signal', s3, body3) + '</ol></section>';
+    var info = '<aside style="background:var(--surface-low);border-radius:5px;padding:16px 20px;display:flex;flex-direction:column;gap:14px"><h2 style="font-size:16px;line-height:24px;font-weight:600">What Is Orchestrate?</h2><p class="muted">Find the products that need work, and track the fixes with your team, without leaving the system.</p>' +
+      [['sensors', 'Signal', 'A saved search that finds products needing attention.', 'Example: 128 products are missing English descriptions.'], ['assignment', 'Project', 'The work to fix them, with an owner and the people who do it.', 'Example: Anna’s team adds the missing descriptions this week.']].map(function (x) { return '<div style="display:flex;gap:12px;align-items:flex-start">' + mi(x[0], 'font-size:20px;color:var(--navy-700);margin-top:1px') + '<div style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:600">' + x[1] + '</span><span style="font-size:13px;line-height:18px">' + x[2] + '</span><span class="muted" style="font-size:12px;line-height:17px">' + x[3] + '</span></div></div>'; }).join('') + '</aside>';
+    return '<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,360px);gap:24px;align-items:start" class="sg">' + guide + info + '</div>';
+  }
+
+  function banner(d) {
+    if (S.page !== 'dash') return '';
+    if (S.act === 'running' && d.admin) return '<div role="status" style="background:#c9dcff;display:flex;align-items:center;gap:14px;padding:13px 20px;margin:8px 12px 0;border-radius:8px">' + mi('sync', 'font-size:20px') + '<span style="flex:1">Setting up Orchestrate…</span></div>';
+    if (S.act !== 'off' || S.bannerDismissed || !d.admin) return '';
+    return '<div role="status" style="background:#c9dcff;display:flex;align-items:center;gap:14px;padding:9px 12px 9px 20px;margin:8px 12px 0;border-radius:8px">' + mi('info', 'font-size:20px;flex-shrink:0') +
+      '<span style="flex:1"><b style="font-weight:600">Orchestrate is now available.</b> ' + (d.admin ? 'Find and fix content gaps faster, right from your dashboard.' : 'Ask your administrator to enable it for your environment.') +
+      (d.admin ? ' <button data-a="intro" style="background:none;border:none;padding:0;font:inherit;font-weight:600;color:var(--on-surface);text-decoration:underline;cursor:pointer">Enable Orchestrate</button>' : '') + '</span>' +
+      '<button class="ib" data-a="banner-x" aria-label="Dismiss" style="width:32px;height:32px;color:var(--on-surface);cursor:pointer">' + mi('close', 'font-size:20px') + '</button></div>';
+  }
+
+  function alert(kind, t, b) { return '<div class="alert' + (kind === 'ok' ? ' ok' : '') + '" role="status">' + mi(kind === 'ok' ? 'check_circle' : 'info') + '<div><b>' + t + '</b>' + b + '</div></div>'; }
+
+  function pageHead(icon, title, action) {
+    return '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-height:76px;padding:10px 24px;background:var(--navy-100)">' +
+      '<span class="icirc" style="width:44px;height:44px;background:var(--navy-700)">' + mi(icon, 'color:#fff') + '</span>' +
+      '<div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:2px"><nav aria-label="Breadcrumb"><button data-a="dash" style="background:none;border:none;padding:0;font:400 14px/20px var(--font-sans);color:var(--navy-700);cursor:pointer;text-decoration:underline">Dashboard</button></nav>' +
+      '<h1 style="font-size:22px;line-height:28px;font-weight:700;color:var(--navy-700)">' + title + '</h1></div>' + (action || '') + '</div>';
+  }
+  function list(d) {
+    var isS = S.page === 'signals';
+    var rows = isS ? d.sig.map(function (x) { return [x.name, x.owner, x.count, x.status]; }) : d.proj.map(function (x) { return [x.name, x.owner, x.done + ' of ' + x.total + ' resolved', 'Active']; });
+    var h = pageHead(isS ? 'sensors' : 'assignment', isS ? 'Signal Center' : 'Projects', '<button class="btn" data-a="create"' + (d.noPerm ? ' disabled' : '') + '>' + (isS ? 'Create Signal' : 'Create Project') + '</button>') +
+      '<div class="page" style="gap:16px"><span class="muted" style="font-size:13px">' + (d.noPerm ? (isS ? 'Showing your signals' : 'Showing your projects') : (isS ? 'Showing all signals' : 'Showing all projects')) + '</span>';
+    if (d.noPerm) h += alert('info', 'You can view this page, but you can’t create anything yet.', 'Ask your administrator to add the Manage Orchestrate permission to your role.');
+    if (S.createNote) h += alert('info', 'You found where to start.', isS ? 'In the full product, a signal starts from a saved query. That’s outside this prototype, so you can finish this task now.' : 'In the full product, a project is created from a signal. That’s outside this prototype, so you can finish this task now.');
+    if (rows.length) {
+      h += '<div class="card scroll"><table><thead><tr><th>Name</th><th>Owner</th><th>' + (isS ? 'Entities' : 'Progress') + '</th><th>Status</th></tr></thead><tbody>' +
+        rows.map(function (r) { return '<tr><td>' + esc(r[0]) + '</td><td class="muted">' + esc(r[1]) + '</td><td class="muted">' + esc(r[2]) + '</td><td><span class="chip">' + esc(r[3]) + '</span></td></tr>'; }).join('') + '</tbody></table></div>';
+    } else {
+      h += '<div class="card" style="padding:48px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center"><span class="icirc" style="width:56px;height:56px">' + mi(isS ? 'sensors' : 'assignment', 'font-size:28px') + '</span><h2 style="font-size:16px;line-height:24px;font-weight:600">' + (isS ? 'No Signals Yet' : 'No Projects Yet') + '</h2><p class="muted" style="max-width:460px">' +
+        (isS ? (d.noPerm ? 'Signals your administrator or project owners create will show here when you’re part of them.' : 'Signals start from a query. Find entities with a content gap, then save the query as a signal to track them.') : (d.noPerm ? 'Projects you’re assigned to will show here.' : 'Projects start from a signal. Open a signal and create a project to assign the work.')) +
+        '</p><button class="btn txt" data-a="intro">How Signals &amp; Projects Work</button></div>';
+    }
+    return h + '</div>';
+  }
+
+  function channel() {
+    return pageHead('account_tree', 'Channel Mapper', '') + '<div class="page" style="gap:16px"><div class="card" style="padding:48px 24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center"><span class="icirc" style="width:56px;height:56px">' + mi('account_tree', 'font-size:28px') + '</span><h2 style="font-size:16px;line-height:24px;font-weight:600">Channel Mapper isn’t part of this test</h2><p class="muted">Go back to the dashboard and try again.</p><button class="btn" data-a="dash">Back to Dashboard</button></div></div>';
+  }
+
+
+  function render() {
+    if (!S) { root.innerHTML = renderIndex(); return; }
+    var d = derive();
+    var p = S.page;
+    if ((p === 'signals' || p === 'projects') && d.locked) p = 'intro';
+    var body = p === 'dash' ? dash(d) : p === 'intro' ? intro(d) : p === 'channel' ? channel() : list(d);
+    var tabs = '';
+    var BAR = 'position:sticky;top:0;z-index:80;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:10px 16px;background:var(--navy-800);color:#fff;font-size:14px';
+    var BTN = 'height:34px;padding:0 14px;border-radius:5px;border:1px solid rgba(255,255,255,.6);background:#fff;color:var(--navy-800);font:600 13px/1 var(--font-sans);cursor:pointer';
+    var BTN2 = 'height:34px;padding:0 14px;border-radius:5px;border:1px solid rgba(255,255,255,.6);background:transparent;color:#fff;font:500 13px/1 var(--font-sans);cursor:pointer';
+    if (flow && (flow.length > 1 || S.dash)) {
+      var last = part === flow.length - 1;
+      tabs += '<div style="' + BAR + '"><span style="font-weight:600">' + (flow.length > 1 ? 'Part ' + (part + 1) + ' of ' + flow.length + (flow[part].name ? ': ' + flow[part].name : '') : (flow[part].name || '')) + '</span>' +
+        (S.dash ? '<span aria-live="polite">' + S.dlabels[S.tab] + ' · ' + (S.tab + 1) + ' of ' + S.dash.length + '</span>' +
+          '<button class="tbtn" data-a="dver" data-d="-1" style="' + BTN2 + '"' + (S.tab === 0 ? ' disabled' : '') + '>Previous Dashboard</button>' +
+          '<button class="tbtn" data-a="dver" data-d="1" style="' + BTN2 + '"' + (S.tab === S.dash.length - 1 ? ' disabled' : '') + '>Next Dashboard</button>' : '') +
+        (S.compare ? '<span aria-live="polite">Version ' + S.letters[S.tab] + ' · ' + (S.tab + 1) + ' of ' + S.compare.length + '</span>' +
+          '<button class="tbtn" data-a="ver" data-d="-1" style="' + BTN2 + '"' + (S.tab === 0 ? ' disabled' : '') + '>Previous Version</button>' +
+          '<button class="tbtn" data-a="ver" data-d="1" style="' + BTN2 + '"' + (S.tab === S.compare.length - 1 ? ' disabled' : '') + '>Next Version</button>' : '') +
+        '<span style="margin-left:auto;font-size:13px;opacity:.85">' + (flow.length === 1 ? 'When you’ve looked at all three, go back to the test window.' : (last ? 'This is the last part.' : 'Continue when the test tells you to.')) + '</span>' +
+        (last ? '' : '<button data-a="next-part" style="' + BTN + '">Continue to Part ' + (part + 2) + '</button>') + '</div>';
+    }
+    var note = '';
+    if (S.enableNote) note = '<div data-a="close-note" style="position:fixed;inset:0;z-index:200;background:rgba(25,27,36,.55);display:flex;align-items:center;justify-content:center;padding:24px">' +
+      '<div role="dialog" aria-modal="true" aria-labelledby="tn-t" data-stop="1" style="background:#fff;border-radius:8px;max-width:440px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.3);overflow:hidden">' +
+      '<div style="background:var(--navy-800);color:#fff;padding:10px 16px;font-size:12px;font-weight:600;letter-spacing:.4px;display:flex;align-items:center;gap:8px">' + mi('science', 'font-size:16px') + 'NOTE FROM THE TEST</div>' +
+      '<div style="padding:18px 20px;display:flex;flex-direction:column;gap:10px"><h2 id="tn-t" style="font-size:18px;line-height:26px;font-weight:600">Turning it on isn’t part of this test</h2>' +
+      '<p class="muted">You don’t need to enable anything. Close this message and go back to the test window to answer the questions.</p>' +
+      '<div class="right" style="margin-top:6px"><button class="btn" data-a="close-note" id="tn-ok">Got It</button></div></div></div></div>';
+    root.innerHTML = tabs + note + '<div class="app">' + rail(d) + '<main>' + header() + (p === 'dash' ? banner(d) : '') + body + '</main></div>';
+    var ok = S.enableNote ? document.getElementById('tn-ok') : null; if (ok && ok.focus) ok.focus();
+    var o = document.getElementById('orch');
+    if (o) { o.addEventListener('mouseenter', function () { if (!(S.nav === 'C' && S.act !== 'on' && S.viewer === 'admin')) set({ menu: true }); }); o.addEventListener('mouseleave', function () { set({ menu: false }); }); }
+    var pl = document.getElementById('plan');
+    if (pl) { pl.addEventListener('mouseenter', function () { set({ planTip: true }); }); pl.addEventListener('mouseleave', function () { set({ planTip: false }); }); }
+  }
+
+  function go(page) { set({ page: page, menu: false, planTip: false, createNote: false }); window.scrollTo(0, 0); }
+
+  root.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-a]'); if (!b) return;
+    var a = b.getAttribute('data-a');
+    if (a === 'close-note' && e.target.closest('[data-stop]') && !e.target.closest('#tn-ok')) return;
+    if (a === 'close-note') { set({ enableNote: false }); return; }
+    if (a === 'copy') {
+      var url = BASE_URL + '#' + b.getAttribute('data-k');
+      try { navigator.clipboard.writeText(url).then(function () { b.innerHTML = mi('check', 'font-size:16px') + 'Copied'; }); } catch (err) { /* clipboard unavailable */ }
+      return;
+    }
+    if (!S) return;
+    var locked = S.act !== 'on';
+    if (locked && S.viewer !== 'admin' && (a === 'intro' || a === 'signals' || a === 'projects')) return;
+    if (a === 'dash') go('dash');
+    else if (a === 'intro') go('intro');
+    else if (a === 'signals') go(locked ? 'intro' : 'signals');
+    else if (a === 'projects') go(locked ? 'intro' : 'projects');
+    else if (a === 'channel') go('channel');
+    else if (a === 'orch') { if (S.nav === 'C' && locked && S.viewer === 'admin') go('intro'); else set({ menu: !S.menu }); }
+    else if (a === 'plan') set({ planTip: !S.planTip, menu: false });
+    else if (a === 'dismiss') set({ promoDismissed: true });
+    else if (a === 'roles') set({ rolesNote: true });
+    else if (a === 'details') set({ details: !S.details });
+    else if (a === 'banner-x') set({ bannerDismissed: true });
+    else if (a === 'next-part') { if (flow && part < flow.length - 1) { part++; load(); } }
+    else if (a === 'dver') { var nd = Math.max(0, Math.min(S.dash.length - 1, S.tab + (+b.getAttribute('data-d')))); set({ tab: nd, widget: S.dash[nd], page: 'dash', promoDismissed: false, menu: false }); window.scrollTo(0, 0); }
+    else if (a === 'ver') { var nt = Math.max(0, Math.min(S.compare.length - 1, S.tab + (+b.getAttribute('data-d')))); stop(); set({ tab: nt, gs: S.compare[nt], page: 'intro', act: 'off', pct: 0, details: false, rolesNote: false, menu: false }); window.scrollTo(0, 0); }
+    else if (a === 'tab') { var i = +b.getAttribute('data-i'); stop(); set({ tab: i, gs: S.compare[i], page: 'intro', act: 'off', pct: 0, details: false, rolesNote: false, menu: false }); window.scrollTo(0, 0); }
+    else if (a === 'create') set({ createNote: true });
+    else if (a === 'enable' && flow && flow[part].noEnable) { set({ enableNote: true }); }
+    else if (a === 'enable') {
+      stop(); set({ act: 'running', pct: 0, page: 'intro', menu: false }); window.scrollTo(0, 0);
+      timer = setInterval(function () { var n = S.pct + 4; if (n >= 100) { stop(); set({ pct: 100, act: 'on' }); } else set({ pct: n }); }, 220);
+    }
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && S && (S.menu || S.planTip || S.enableNote)) set({ menu: false, planTip: false, enableNote: false }); });
+  document.addEventListener('click', function (e) { if (S && S.menu && !e.target.closest('#orch')) set({ menu: false }); });
+
+  load();
+})();
+</script>
+</body>
+</html>
